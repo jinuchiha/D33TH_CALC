@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recovery Settlement Tool</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a2e;
+            --accent: #00d4aa;
+            --accent-glow: rgba(0, 212, 170, 0.15);
+            --text-primary: #e8e8f0;
+            --text-secondary: #8888a0;
+            --text-muted: #555570;
+            --border: #2a2a40;
+            --danger: #ff4466;
+            --success: #00dd88;
+            --gradient-1: linear-gradient(135deg, #00d4aa, #0088ff);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-accent: 0 4px 24px rgba(0, 212, 170, 0.2);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 20% 50%, rgba(0, 212, 170, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 136, 255, 0.03) 0%, transparent 50%);
+            animation: bgShift 20s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        @keyframes bgShift {
+
+            0%,
+            100% {
+                transform: translate(0, 0)
+            }
+
+            50% {
+                transform: translate(-2%, -2%)
+            }
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem
+        }
+
+        .header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 800;
+            color: #000
+        }
+
+        .logo-text h1 {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 1px
+        }
+
+        .logo-text span {
+            font-size: 11px;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+            text-transform: uppercase
+        }
+
+        .header-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--text-secondary)
+        }
+
+        .nav-bar {
+            max-width: 1200px;
+            margin: 2rem auto 0;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 1
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-secondary);
+            padding: 5px;
+            border-radius: 14px;
+            border: 1px solid var(--border)
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all .3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px
+        }
+
+        .nav-tab:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.03)
+        }
+
+        .nav-tab.active {
+            background: var(--bg-card);
+            color: var(--accent);
+            box-shadow: var(--shadow)
+        }
+
+        .nav-tab svg {
+            width: 16px;
+            height: 16px
+        }
+
+        .main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem 4rem;
+            position: relative;
+            z-index: 1
+        }
+
+        .page {
+            display: none;
+            animation: fadeUp .4s ease
+        }
+
+        .page.active {
+            display: block
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            transition: all .3s ease
+        }
+
+        .card:hover {
+            border-color: rgba(0, 212, 170, 0.2)
+        }
+
+        .card-title {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .card-title::before {
+            content: '';
+            width: 3px;
+            height: 16px;
+            background: var(--gradient-1);
+            border-radius: 2px
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem
+        }
+
+        .form-grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1.25rem
+        }
+
+        .form-group {
+            position: relative
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            letter-spacing: .5px
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: all .3s ease;
+            outline: none
+        }
+
+        .form-group select option {
+            background: var(--bg-secondary);
+            color: var(--text-primary)
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow)
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-muted)
+        }
+
+        .input-with-prefix {
+            position: relative
+        }
+
+        .input-prefix {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent)
+        }
+
+        .input-with-prefix input {
+            padding-left: 50px
+        }
+
+        .input-suffix {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted)
+        }
+
+        .input-with-suffix input {
+            padding-right: 36px
+        }
+
+        .full-width {
+            grid-column: 1/-1
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .btn-primary {
+            background: var(--gradient-1);
+            color: #000;
+            box-shadow: var(--shadow-accent)
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(0, 212, 170, 0.35)
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border)
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent)
+        }
+
+        .btn-danger {
+            background: rgba(255, 68, 102, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(255, 68, 102, 0.2)
+        }
+
+        .btn-danger:hover {
+            background: rgba(255, 68, 102, 0.2)
+        }
+
+        .btn-copy {
+            background: rgba(0, 212, 170, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(0, 212, 170, 0.3)
+        }
+
+        .btn-copy:hover {
+            background: rgba(0, 212, 170, 0.2)
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 1.5rem;
+            flex-wrap: wrap
+        }
+
+        .email-preview-wrapper {
+            display: none;
+            animation: fadeUp .5s ease
+        }
+
+        .email-preview-wrapper.show {
+            display: block
+        }
+
+        .email-container {
+            background: #fff;
+            color: #333;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            max-width: 720px;
+            margin: 1.5rem auto
+        }
+
+        .email-toolbar {
+            background: #f8f9fa;
+            padding: 12px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .email-toolbar .et-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px
+        }
+
+        .email-toolbar .et-actions {
+            display: flex;
+            gap: 6px
+        }
+
+        .email-toolbar .et-btn {
+            padding: 6px 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: #fff;
+            font-size: 12px;
+            font-weight: 500;
+            color: #555;
+            cursor: pointer;
+            transition: all .2s ease;
+            font-family: 'Inter', sans-serif
+        }
+
+        .email-toolbar .et-btn:hover {
+            border-color: #00d4aa;
+            color: #00875a
+        }
+
+        .email-toolbar .et-btn.copied-btn {
+            background: #00d4aa;
+            color: #000;
+            border-color: #00d4aa
+        }
+
+        .email-subject-bar {
+            padding: 14px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 10px
+        }
+
+        .email-subject-bar .esb-label {
+            font-size: 12px;
+            color: #999;
+            font-weight: 500;
+            min-width: 60px
+        }
+
+        .email-subject-bar .esb-value {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+            flex: 1
+        }
+
+        .email-body-area {
+            padding: 24px;
+            font-size: 14px;
+            line-height: 1.85;
+            color: #333;
+            white-space: pre-wrap;
+            font-family: 'Inter', -apple-system, sans-serif
+        }
+
+        .result-header {
+            text-align: center;
+            padding: 2rem 0 1rem
+        }
+
+        .result-header .check-icon {
+            width: 56px;
+            height: 56px;
+            background: rgba(0, 221, 136, 0.1);
+            border: 2px solid var(--success);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 24px;
+            animation: scaleIn .5s ease
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+                opacity: 0
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1
+            }
+        }
+
+        .result-header h2 {
+            font-size: 18px;
+            font-weight: 600
+        }
+
+        .result-header p {
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-top: 4px
+        }
+
+        .summary-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            max-width: 720px;
+            margin: 0 auto 1.5rem
+        }
+
+        .summary-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            text-align: center
+        }
+
+        .summary-card .sc-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px;
+            font-weight: 700
+        }
+
+        .summary-card .sc-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px
+        }
+
+        .sc-outstanding .sc-value {
+            color: var(--danger)
+        }
+
+        .sc-discount .sc-value {
+            color: var(--success)
+        }
+
+        .sc-settlement .sc-value {
+            color: var(--accent)
+        }
+
+        .sc-product .sc-value {
+            color: #ffaa00
+        }
+
+        .quick-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: start
+        }
+
+        .quick-result {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            position: sticky;
+            top: 100px
+        }
+
+        .quick-result .amount-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--accent);
+            margin: 1rem 0;
+            text-shadow: 0 0 30px rgba(0, 212, 170, 0.3)
+        }
+
+        .quick-result .amount-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-secondary)
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1.5rem
+        }
+
+        .quick-stat {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 1rem
+        }
+
+        .quick-stat .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px;
+            font-weight: 600
+        }
+
+        .quick-stat .stat-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 4px
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border)
+        }
+
+        table.bulk-tbl {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        table.bulk-tbl th {
+            background: var(--bg-secondary);
+            padding: 14px 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            text-align: left;
+            border-bottom: 1px solid var(--border)
+        }
+
+        table.bulk-tbl td {
+            padding: 14px 20px;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(42, 42, 64, 0.5);
+            font-family: 'JetBrains Mono', monospace
+        }
+
+        table.bulk-tbl tr:hover td {
+            background: rgba(0, 212, 170, 0.03)
+        }
+
+        table.bulk-tbl tr:last-child td {
+            border-bottom: none
+        }
+
+        td.highlight {
+            color: var(--accent);
+            font-weight: 600
+        }
+
+        .discount-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(0, 212, 170, 0.1);
+            color: var(--accent)
+        }
+
+        .history-empty {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted)
+        }
+
+        .history-empty svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 1rem;
+            opacity: .3
+        }
+
+        .history-item {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr .6fr .8fr;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(42, 42, 64, 0.5);
+            align-items: center;
+            transition: all .2s ease
+        }
+
+        .history-item:hover {
+            background: rgba(0, 212, 170, 0.03)
+        }
+
+        .history-item:last-child {
+            border-bottom: none
+        }
+
+        .history-item .hi-customer {
+            font-weight: 500
+        }
+
+        .history-item .hi-customer small {
+            display: block;
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 400;
+            margin-top: 2px
+        }
+
+        .history-item .hi-amounts {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px
+        }
+
+        .history-item .hi-amounts .original {
+            color: var(--text-muted);
+            text-decoration: line-through;
+            font-size: 12px
+        }
+
+        .history-item .hi-amounts .final {
+            color: var(--accent);
+            font-weight: 600
+        }
+
+        .history-item .hi-date {
+            text-align: right;
+            font-size: 12px;
+            color: var(--text-muted)
+        }
+
+        .history-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem
+        }
+
+        .history-count {
+            font-size: 13px;
+            color: var(--text-secondary)
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 12px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--accent);
+            border-radius: 10px;
+            font-size: 13px;
+            color: var(--accent);
+            box-shadow: var(--shadow-accent);
+            z-index: 1000;
+            animation: slideIn .3s ease, slideOut .3s ease 2.7s forwards
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0
+            }
+        }
+
+        @keyframes slideOut {
+            to {
+                transform: translateX(100%);
+                opacity: 0
+            }
+        }
+
+        @media(max-width:768px) {
+            .nav-tabs {
+                flex-wrap: wrap
+            }
+
+            .nav-tab span {
+                display: none
+            }
+
+            .form-grid,
+            .form-grid-3 {
+                grid-template-columns: 1fr
+            }
+
+            .quick-layout {
+                grid-template-columns: 1fr
+            }
+
+            .history-item {
+                grid-template-columns: 1fr 1fr
+            }
+
+            .summary-strip {
+                grid-template-columns: 1fr 1fr
+            }
+
+            .header-time {
+                display: none
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="header-inner">
+            <div class="logo">
+                <div class="logo-icon">U</div>
+                <div class="logo-text">
+                    <h1>D33TH</h1>
+                    <span>BRS System</span>
+                </div>
+            </div>
+            <div class="header-time" id="headerTime"></div>
+        </div>
+    </header>
+
+    <nav class="nav-bar">
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showPage('calc')" id="tab-calc">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                    <polyline points="22 6 12 13 2 6" />
+                </svg>
+                <span>Settlement Email</span>
+            </button>
+            <button class="nav-tab" onclick="showPage('quick')" id="tab-quick">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                </svg>
+                <span>Quick Calculate</span>
+            </button>
+            <button class="nav-tab" onclick="showPage('bulk')" id="tab-bulk">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <line x1="3" y1="9" x2="21" y2="9" />
+                    <line x1="3" y1="15" x2="21" y2="15" />
+                    <line x1="9" y1="3" x2="9" y2="21" />
+                </svg>
+                <span>Discount Table</span>
+            </button>
+            <button class="nav-tab" onclick="showPage('history')" id="tab-history">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                </svg>
+                <span>History</span>
+            </button>
+        </div>
+    </nav>
+
+    <main class="main">
+
+        <!-- PAGE: Settlement Email -->
+        <div class="page active" id="page-calc">
+            <div id="calcForm">
+
+                <div class="card">
+                    <div class="card-title">Client Identification</div>
+                    <div class="form-grid-3">
+                        <div class="form-group">
+                            <label>Client Name</label>
+                            <input type="text" id="clientName" placeholder="e.g. Ahmed Ali Khan">
+                        </div>
+                        <div class="form-group">
+                            <label>Master ID / Iqama / Emirates ID</label>
+                            <input type="text" id="masterId" placeholder="e.g. 784-XXXX-XXXXXXX-X">
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Person (if different)</label>
+                            <input type="text" id="contactPerson" placeholder="Leave blank if same as client">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Account Details</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Bank Name</label>
+                            <input type="text" id="bankName" placeholder="e.g. Emirates NBD">
+                        </div>
+                        <div class="form-group">
+                            <label>Card / Account Number</label>
+                            <input type="text" id="accountNo" placeholder="4 digits = Card, more = Account"
+                                inputmode="numeric">
+                        </div>
+                        <div class="form-group">
+                            <label>Product Type</label>
+                            <select id="productType">
+                                <option value="Personal Loan">Personal Loan (PL)</option>
+                                <option value="Credit Card">Credit Card</option>
+                                <option value="Auto Loan">Auto Loan</option>
+                                <option value="Mortgage">Mortgage</option>
+                                <option value="Business Loan">Business Loan</option>
+                                <option value="Overdraft">Overdraft</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Settlement Offer</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Total Outstanding Amount</label>
+                            <div class="input-with-prefix">
+                                <span class="input-prefix">AED</span>
+                                <input type="number" id="amount" placeholder="0.00" min="0" step="0.01">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Discount Offered (%)</label>
+                            <div class="input-with-suffix">
+                                <input type="number" id="discount" placeholder="0" min="0" max="100" step="0.1">
+                                <span class="input-suffix">%</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Processed By (Internal - not shown in email)</label>
+                            <input type="text" id="processedBy" placeholder="Your name">
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="generateEmail()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                <polyline points="22 6 12 13 2 6" />
+                            </svg>
+                            Generate Settlement Email
+                        </button>
+                        <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Result -->
+            <div class="email-preview-wrapper" id="emailResult">
+                <div class="result-header">
+                    <div class="check-icon">&#10003;</div>
+                    <h2>Settlement Email Ready</h2>
+                    <p id="resultMeta"></p>
+                </div>
+
+                <div class="summary-strip">
+                    <div class="summary-card sc-product">
+                        <div class="sc-value" id="sumProduct">-</div>
+                        <div class="sc-label">Product</div>
+                    </div>
+                    <div class="summary-card sc-outstanding">
+                        <div class="sc-value" id="sumOutstanding">AED 0</div>
+                        <div class="sc-label">Outstanding</div>
+                    </div>
+                    <div class="summary-card sc-discount">
+                        <div class="sc-value" id="sumDiscount">- AED 0</div>
+                        <div class="sc-label">Discount</div>
+                    </div>
+                    <div class="summary-card sc-settlement">
+                        <div class="sc-value" id="sumSettlement">AED 0</div>
+                        <div class="sc-label">Settlement</div>
+                    </div>
+                </div>
+
+                <div class="email-container">
+                    <div class="email-toolbar">
+                        <span class="et-label">Email Preview</span>
+                        <div class="et-actions">
+                            <button class="et-btn" onclick="copySubject(this)">Copy Subject</button>
+                            <button class="et-btn" onclick="copyBody(this)">Copy Body</button>
+                            <button class="et-btn" onclick="copyAll(this)"
+                                style="background:#00d4aa22;color:#00875a;border-color:#00d4aa55">Copy All</button>
+                        </div>
+                    </div>
+                    <div class="email-subject-bar">
+                        <span class="esb-label">Subject:</span>
+                        <span class="esb-value" id="emailSubject"></span>
+                    </div>
+                    <div class="email-body-area" id="emailBody"></div>
+                </div>
+
+                <div class="btn-group" style="justify-content:center;margin-top:1.5rem">
+                    <button class="btn btn-copy" onclick="copyAll()" style="font-size:16px;padding:14px 36px">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" />
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                        </svg>
+                        Copy &amp; Paste in Email
+                    </button>
+                    <button class="btn btn-secondary" onclick="newCalc()">New Settlement</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE: Quick Calculate -->
+        <div class="page" id="page-quick">
+            <div class="quick-layout">
+                <div class="card">
+                    <div class="card-title">Quick Settlement Calculator</div>
+                    <div class="form-group" style="margin-bottom:1.25rem">
+                        <label>Outstanding Amount (AED)</label>
+                        <div class="input-with-prefix">
+                            <span class="input-prefix">AED</span>
+                            <input type="number" id="qAmt" placeholder="0.00" min="0" step="0.01" oninput="quickCalc()">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Discount Offered (%)</label>
+                        <div class="input-with-suffix">
+                            <input type="number" id="qDis" placeholder="0" min="0" max="100" step="0.1"
+                                oninput="quickCalc()">
+                            <span class="input-suffix">%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="quick-result">
+                    <div class="amount-label">Settlement Amount</div>
+                    <div class="amount-display" id="qFinalDisplay">AED 0.00</div>
+                    <div class="quick-stats">
+                        <div class="quick-stat">
+                            <div class="stat-value" id="qSaveDisplay" style="color:var(--success)">AED 0.00</div>
+                            <div class="stat-label">Discount Given</div>
+                        </div>
+                        <div class="quick-stat">
+                            <div class="stat-value" id="qOrigDisplay">AED 0.00</div>
+                            <div class="stat-label">Outstanding</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE: Bulk Table -->
+        <div class="page" id="page-bulk">
+            <div class="card">
+                <div class="card-title">Bulk Discount Breakdown</div>
+                <div class="form-grid" style="grid-template-columns:1fr auto;align-items:end">
+                    <div class="form-group">
+                        <label>Enter Outstanding Amount to see all settlement options</label>
+                        <div class="input-with-prefix">
+                            <span class="input-prefix">AED</span>
+                            <input type="number" id="bulkAmt" placeholder="0.00" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="generateBulk()" style="height:46px">Generate</button>
+                </div>
+            </div>
+            <div class="card" id="bulkTableCard" style="display:none;padding:0;overflow:hidden">
+                <div class="table-container">
+                    <table class="bulk-tbl">
+                        <thead>
+                            <tr>
+                                <th>Discount %</th>
+                                <th>Discount Amt</th>
+                                <th>Settlement Amt</th>
+                                <th>Client Saves</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bulkTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE: History -->
+        <div class="page" id="page-history">
+            <div class="card" style="padding:0;overflow:hidden">
+                <div style="padding:1.5rem">
+                    <div class="history-actions">
+                        <span class="history-count" id="historyCount">0 records</span>
+                        <div style="display:flex;gap:8px">
+                            <button class="btn btn-secondary" onclick="exportCSV()"
+                                style="padding:8px 16px;font-size:12px">Export CSV</button>
+                            <button class="btn btn-danger" onclick="clearHistory()"
+                                style="padding:8px 16px;font-size:12px">Clear All</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="historyList"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const commaFmt = n => parseFloat(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        function now() {
+            const d = new Date();
+            return {
+                date: d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+                time: d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
+            };
+        }
+
+        function updateClock() { const n = now(); document.getElementById('headerTime').textContent = `${n.date}  •  ${n.time}` }
+        updateClock(); setInterval(updateClock, 1000);
+
+        function showPage(p) {
+            document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+            document.getElementById(`page-${p}`).classList.add('active');
+            document.getElementById(`tab-${p}`).classList.add('active');
+            if (p === 'history') renderHistory();
+        }
+
+        function toast(msg) {
+            const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+            document.body.appendChild(t); setTimeout(() => t.remove(), 3000);
+        }
+
+        function getHistory() { return JSON.parse(localStorage.getItem('uc_settlements') || '[]') }
+        function saveToHistory(r) { const h = getHistory(); h.unshift(r); localStorage.setItem('uc_settlements', JSON.stringify(h)) }
+
+        let currentSubject = '', currentBody = '';
+
+        // ===== GENERATE EMAIL =====
+        function generateEmail() {
+            const clientName = document.getElementById('clientName').value.trim();
+            const masterId = document.getElementById('masterId').value.trim();
+            const contactPerson = document.getElementById('contactPerson').value.trim() || clientName;
+            const bankName = document.getElementById('bankName').value.trim();
+            const accountNo = document.getElementById('accountNo').value.trim();
+            const productType = document.getElementById('productType').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const discount = parseFloat(document.getElementById('discount').value);
+            const processedBy = document.getElementById('processedBy').value.trim();
+
+            if (!clientName || !bankName) { toast('Please enter Client Name and Bank Name'); return }
+            if (!accountNo && !masterId) { toast('Please enter Account/Card Number or Master ID'); return }
+            if (isNaN(amount) || amount <= 0) { toast('Please enter a valid outstanding amount'); return }
+            if (isNaN(discount) || discount < 0 || discount > 100) { toast('Discount must be between 0% and 100%'); return }
+
+            const discAmt = Math.round(amount * discount / 100 * 100) / 100;
+            const finalAmt = Math.round((amount - discAmt) * 100) / 100;
+            const n = now();
+
+            // Smart: 4 digits = Card (ending in XXXX), more = Account Number
+            const isCard = accountNo.length === 4;
+            const acctLabel = isCard ? 'Card ending in' : 'Account No';
+            const acctValue = isCard ? accountNo : accountNo;
+
+            // Save
+            saveToHistory({
+                date: n.date, time: n.time, customer: clientName, masterId, bank: bankName,
+                accountNo, isCard, product: productType, amount, discount,
+                discountAmt: discAmt, finalAmt, processedBy
+            });
+
+            // Product name
+            const productShort = productType;
+
+            // Subject
+            currentSubject = `Settlement Offer – ${clientName} – ${bankName} ${productShort}${isCard ? ' ending ' + accountNo : ''}`;
+
+            // Body - Ultra Professional Bank Recovery Email
+            currentBody = `Dear ${contactPerson},
+
+Please be informed that as of ${n.date}, the following account remains outstanding with ${bankName}:
+
+Name              : ${clientName}${masterId ? '\nID No             : ' + masterId : ''}
+Product           : ${productShort}${accountNo ? '\n' + acctLabel.padEnd(18) + ': ' + acctValue : ''}
+Outstanding       : AED ${commaFmt(amount)}
+
+Subject to bank approval, should you wish to close the above account through a full and final one-time payment, the settlement amount would be AED ${commaFmt(finalAmt)}.
+
+This is a one-time offer and is not applicable for partial payments. Upon receipt of the settlement amount, a clearance letter / NOC will be issued by ${bankName}.
+
+Kindly confirm at the earliest so we may proceed with the approval process.
+
+Regards,
+${processedBy || ''}`;
+
+            // Display
+            document.getElementById('sumProduct').textContent = productShort;
+            document.getElementById('sumOutstanding').textContent = `AED ${commaFmt(amount)}`;
+            document.getElementById('sumDiscount').textContent = `- AED ${commaFmt(discAmt)}`;
+            document.getElementById('sumSettlement').textContent = `AED ${commaFmt(finalAmt)}`;
+            document.getElementById('emailSubject').textContent = currentSubject;
+            document.getElementById('emailBody').textContent = currentBody;
+            document.getElementById('resultMeta').textContent = `${clientName} • ${bankName} • ${productShort} • ${n.date}`;
+
+            document.getElementById('calcForm').style.display = 'none';
+            document.getElementById('emailResult').classList.add('show');
+            toast('Email ready — copy and send!');
+        }
+
+        function copySubject(btn) { navigator.clipboard.writeText(currentSubject).then(() => { flashBtn(btn, 'Copied!'); toast('Subject copied') }) }
+        function copyBody(btn) { navigator.clipboard.writeText(currentBody).then(() => { flashBtn(btn, 'Copied!'); toast('Body copied') }) }
+        function copyAll(btn) {
+            navigator.clipboard.writeText(`Subject: ${currentSubject}\n\n${currentBody}`).then(() => {
+                if (btn) flashBtn(btn, 'Copied!'); toast('Full email copied to clipboard!');
+            });
+        }
+        function flashBtn(btn, text) {
+            if (!btn) return; const orig = btn.textContent; btn.textContent = text; btn.classList.add('copied-btn');
+            setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied-btn') }, 2000);
+        }
+
+        function newCalc() {
+            clearForm();
+            document.getElementById('calcForm').style.display = 'block';
+            document.getElementById('emailResult').classList.remove('show');
+        }
+
+        function clearForm() {
+            ['clientName', 'masterId', 'contactPerson', 'bankName', 'accountNo', 'amount', 'discount', 'processedBy'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+        }
+
+        // ===== QUICK CALC =====
+        function quickCalc() {
+            const a = parseFloat(document.getElementById('qAmt').value) || 0;
+            const d = parseFloat(document.getElementById('qDis').value) || 0;
+            if (a <= 0 || d < 0 || d > 100) {
+                document.getElementById('qFinalDisplay').textContent = 'AED 0.00';
+                document.getElementById('qSaveDisplay').textContent = 'AED 0.00';
+                document.getElementById('qOrigDisplay').textContent = 'AED 0.00'; return;
+            }
+            const save = Math.round(a * d / 100 * 100) / 100;
+            const f = Math.round((a - save) * 100) / 100;
+            document.getElementById('qFinalDisplay').textContent = `AED ${commaFmt(f)}`;
+            document.getElementById('qSaveDisplay').textContent = `AED ${commaFmt(save)}`;
+            document.getElementById('qOrigDisplay').textContent = `AED ${commaFmt(a)}`;
+        }
+
+        // ===== BULK TABLE =====
+        function generateBulk() {
+            const a = parseFloat(document.getElementById('bulkAmt').value);
+            if (isNaN(a) || a <= 0) { toast('Please enter a valid amount'); return }
+            const tbody = document.getElementById('bulkTableBody'); tbody.innerHTML = '';
+            [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 75].forEach(d => {
+                const disc = Math.round(a * d / 100 * 100) / 100;
+                const f = Math.round((a - disc) * 100) / 100;
+                tbody.innerHTML += `<tr><td><span class="discount-badge">${d}%</span></td><td>AED ${commaFmt(disc)}</td><td class="highlight">AED ${commaFmt(f)}</td><td style="color:var(--success)">AED ${commaFmt(disc)}</td></tr>`;
+            });
+            document.getElementById('bulkTableCard').style.display = 'block';
+        }
+
+        // ===== HISTORY =====
+        function renderHistory() {
+            const h = getHistory(); const list = document.getElementById('historyList');
+            document.getElementById('historyCount').textContent = `${h.length} settlement${h.length !== 1 ? 's' : ''}`;
+            if (h.length === 0) {
+                list.innerHTML = `<div class="history-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><p>No settlements yet</p></div>`; return;
+            }
+            list.innerHTML = h.map(r => `<div class="history-item">
+        <div class="hi-customer">${r.customer}<small>${r.bank} • ${r.product || '-'}${r.accountNo ? (r.accountNo.length === 4 ? ' • Card ending ' + r.accountNo : ' • Acct: ' + r.accountNo) : (r.masterId ? ' • ID: ' + r.masterId : '')}</small></div>
+        <div class="hi-amounts"><span class="original">AED ${commaFmt(r.amount)}</span><br><span class="final">AED ${commaFmt(r.finalAmt)}</span></div>
+        <div class="hi-discount"><span class="discount-badge">${r.discount}%</span></div>
+        <div class="hi-date">${r.date}<br>${r.time}</div>
+    </div>`).join('');
+        }
+
+        function clearHistory() { if (confirm('Clear all settlement history?')) { localStorage.removeItem('uc_settlements'); renderHistory(); toast('History cleared') } }
+
+        function exportCSV() {
+            const h = getHistory(); if (h.length === 0) { toast('No data'); return }
+            let csv = 'Date,Time,Client,Master ID,Bank,Account/Card,Type,Product,Outstanding,Discount%,Discount Amt,Settlement Amt,Processed By\n';
+            h.forEach(r => { csv += `"${r.date}","${r.time}","${r.customer}","${r.masterId || ''}","${r.bank}","${r.accountNo || ''}","${r.accountNo && r.accountNo.length === 4 ? 'Card' : 'Account'}","${r.product || ''}",${r.amount},${r.discount},${r.discountAmt},${r.finalAmt},"${r.processedBy || ''}"\n` });
+            const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = `settlements_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click(); URL.revokeObjectURL(url); toast('CSV exported');
+        }
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                const active = document.querySelector('.page.active');
+                if (active.id === 'page-calc' && document.getElementById('calcForm').style.display !== 'none') generateEmail();
+                else if (active.id === 'page-bulk') generateBulk();
+            }
+        });
+    </script>
+</body>
+
+</html>
