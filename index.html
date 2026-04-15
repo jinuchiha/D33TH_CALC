@@ -88,19 +88,6 @@
             gap: 12px
         }
 
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--gradient-1);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            font-weight: 800;
-            color: #000
-        }
-
         .logo-text h1 {
             font-size: 16px;
             font-weight: 700;
@@ -112,6 +99,32 @@
             color: var(--text-secondary);
             letter-spacing: 2px;
             text-transform: uppercase
+        }
+
+        .logo-powered {
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: 2px;
+            animation: poweredBlink 2s ease-in-out infinite;
+        }
+
+        .logo-powered .gt {
+            color: var(--accent);
+        }
+
+        .logo-powered .d33th-text {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+
+        @keyframes poweredBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
 
         .header-time {
@@ -838,10 +851,9 @@
     <header class="header">
         <div class="header-inner">
             <div class="logo">
-                <div class="logo-icon">U</div>
                 <div class="logo-text">
-                    <h1>D33TH</h1>
                     <span>BRS System</span>
+                    <div class="logo-powered"><span class="gt">&gt;</span><span class="d33th-text">D33TH</span><span class="gt">&lt;</span></div>
                 </div>
             </div>
             <div class="header-time" id="headerTime"></div>
