@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>.--- .. -.</title>
+    <title>Recovery Settlement Tool</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
 
@@ -1186,8 +1186,29 @@
             // Subject
             currentSubject = `Settlement Offer – ${clientName} – ${bankName} ${productShort}${isCard ? ' ending ' + accountNo : ''}`;
 
-            // Body - Ultra Professional Bank Recovery Email
-            currentBody = `Dear ${contactPerson},
+            // Check if bank is SAB/SABB (Saudi Awwal Bank)
+            const isSAB = /\b(sabb?|saudi\s*awwal)\b/i.test(bankName);
+
+            if (isSAB) {
+                // SAB Bank format - Formal recovery notice from Bilkish Associates
+                const deadline = new Date();
+                deadline.setMonth(deadline.getMonth() + 1, 0); // Last day of current month
+                const ordSuffix = (d) => { if (d > 3 && d < 21) return 'th'; switch (d % 10) { case 1: return 'st'; case 2: return 'nd'; case 3: return 'rd'; default: return 'th'; } };
+                const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                const deadlineStr = `${deadline.getDate()}${ordSuffix(deadline.getDate())} ${months[deadline.getMonth()]}, ${deadline.getFullYear()}`;
+
+                currentBody = `We are writing to you from Bilkish Associates, on behalf of Saudi Awwal Bank (formerly SABB), regarding your pending liability with the Bank. Despite multiple reminders and outreach attempts, bank have not received any response or effort from your end to settle the dues.
+
+This is your final opportunity to resolve the matter amicably. The Bank is extending a limited-time discount of up to ${Math.round(discount)}% on your outstanding liability as a gesture of goodwill. To benefit from this exceptional offer, full payment must be made on or before ${deadlineStr}.
+
+Please note that failure to respond or take action will leave the Bank with no option but to proceed with necessary measures to protect its legitimate interests. We strongly advise you not to ignore this notice.
+
+For any clarification or to proceed with the settlement, please contact us immediately. Your cooperation at this stage is crucial to avoid further consequences.
+
+Thank you for your prompt attention.`;
+            } else {
+                // Default format - Professional settlement email
+                currentBody = `Dear ${contactPerson},
 
 Please be informed that as of ${n.date}, the following account remains outstanding with ${bankName}:
 
@@ -1203,6 +1224,7 @@ Kindly confirm at the earliest so we may proceed with the approval process.
 
 Regards,
 ${processedBy || ''}`;
+            }
 
             // Display
             document.getElementById('sumProduct').textContent = productShort;
