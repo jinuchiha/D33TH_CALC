@@ -1145,7 +1145,7 @@
         function getHistory() { return JSON.parse(localStorage.getItem('uc_settlements') || '[]') }
         function saveToHistory(r) { const h = getHistory(); h.unshift(r); localStorage.setItem('uc_settlements', JSON.stringify(h)) }
 
-        let currentSubject = '', currentBody = '';
+        let currentSubject = '', currentBody = '', currentBodyHTML = '';
 
         // ===== GENERATE EMAIL =====
         function generateEmail() {
@@ -1183,20 +1183,23 @@
             // Product name
             const productShort = productType;
 
-            // Subject
-            currentSubject = `Settlement Offer – ${clientName} – ${bankName} ${productShort}${isCard ? ' ending ' + accountNo : ''}`;
-
             // Check if bank is SAB/SABB (Saudi Awwal Bank)
             const isSAB = /\b(sabb?|saudi\s*awwal)\b/i.test(bankName);
 
             if (isSAB) {
+                // SAB Subject - Client Name + Account Number
+                currentSubject = `Settlement Offer – ${clientName}${accountNo ? ' – ' + (isCard ? 'Card ending ' + accountNo : 'A/C ' + accountNo) : ''}`;
+
                 // SAB Bank format - Formal recovery notice from Bilkish Associates
-                const deadline = new Date();
-                deadline.setMonth(deadline.getMonth() + 1, 0); // Last day of current month
+                const today = new Date();
+                const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                const plus7 = new Date(today); plus7.setDate(today.getDate() + 7);
+                const deadline = plus7 > lastDay ? lastDay : plus7;
                 const ordSuffix = (d) => { if (d > 3 && d < 21) return 'th'; switch (d % 10) { case 1: return 'st'; case 2: return 'nd'; case 3: return 'rd'; default: return 'th'; } };
                 const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
                 const deadlineStr = `${deadline.getDate()}${ordSuffix(deadline.getDate())} ${months[deadline.getMonth()]}, ${deadline.getFullYear()}`;
 
+                // Plain text for copying
                 currentBody = `Dear ${contactPerson},
 
 We are writing to you from Bilkish Associates, on behalf of Saudi Awwal Bank (formerly SABB), regarding your pending liability with the Bank. Despite multiple reminders and outreach attempts, bank have not received any response or effort from your end to settle the dues.
@@ -1211,7 +1214,14 @@ Thank you for your prompt attention.
 
 Best Regards,
 ${processedBy || ''}`;
+
+                // HTML with bold for display
+                currentBodyHTML = `Dear ${contactPerson},<br><br>We are writing to you from <b>Bilkish Associates</b>, on behalf of <b>Saudi Awwal Bank (formerly SABB)</b>, regarding your <b>pending liability</b> with the Bank. Despite multiple reminders and outreach attempts, bank have not received any response or effort from your end to settle the dues.<br><br><b>This is your final opportunity to resolve the matter amicably.</b> The Bank is extending a <b>limited-time discount of up to ${Math.round(discount)}%</b> on your outstanding liability as a gesture of goodwill. To benefit from this exceptional offer, full payment must be made <b>on or before ${deadlineStr}</b>.<br><br>Please note that failure to respond or take action will leave the Bank with <b>no option but to proceed with necessary measures</b> to protect its legitimate interests. We strongly advise you not to ignore this notice.<br><br>For any clarification or to proceed with the settlement, please contact us immediately. Your cooperation at this stage is crucial to avoid further consequences.<br><br>Thank you for your prompt attention.<br><br>Best Regards,<br>${processedBy || ''}`;
             } else {
+                // Default Subject
+                currentSubject = `Settlement Offer – ${clientName} – ${bankName} ${productShort}${isCard ? ' ending ' + accountNo : ''}`;
+                currentBodyHTML = '';
+
                 // Default format - Professional settlement email
                 currentBody = `Dear ${contactPerson},
 
@@ -1237,7 +1247,11 @@ ${processedBy || ''}`;
             document.getElementById('sumDiscount').textContent = `- AED ${commaFmt(discAmt)}`;
             document.getElementById('sumSettlement').textContent = `AED ${commaFmt(finalAmt)}`;
             document.getElementById('emailSubject').textContent = currentSubject;
-            document.getElementById('emailBody').textContent = currentBody;
+            if (currentBodyHTML) {
+                document.getElementById('emailBody').innerHTML = currentBodyHTML;
+            } else {
+                document.getElementById('emailBody').textContent = currentBody;
+            }
             document.getElementById('resultMeta').textContent = `${clientName} • ${bankName} • ${productShort} • ${n.date}`;
 
             document.getElementById('calcForm').style.display = 'none';
