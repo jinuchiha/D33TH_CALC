@@ -1187,8 +1187,8 @@
             const isSAB = /\b(sabb?|saudi\s*awwal)\b/i.test(bankName);
 
             if (isSAB) {
-                // SAB Subject - Client Name + Account Number
-                currentSubject = `Settlement Offer – ${clientName}${accountNo ? ' – ' + (isCard ? 'Card ending ' + accountNo : 'A/C ' + accountNo) : ''}`;
+                // SAB Subject - Urgent + Client Name + Iqama + Bank
+                currentSubject = `Urgent: Final Settlement Notice – ${clientName}${masterId ? ' – ' + masterId : ''} – Saudi Awwal Bank (SABB)`;
 
                 // SAB Bank format - Formal recovery notice from Bilkish Associates
                 const today = new Date();
