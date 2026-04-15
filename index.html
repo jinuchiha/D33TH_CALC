@@ -1197,7 +1197,9 @@
                 const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
                 const deadlineStr = `${deadline.getDate()}${ordSuffix(deadline.getDate())} ${months[deadline.getMonth()]}, ${deadline.getFullYear()}`;
 
-                currentBody = `We are writing to you from Bilkish Associates, on behalf of Saudi Awwal Bank (formerly SABB), regarding your pending liability with the Bank. Despite multiple reminders and outreach attempts, bank have not received any response or effort from your end to settle the dues.
+                currentBody = `Dear ${contactPerson},
+
+We are writing to you from Bilkish Associates, on behalf of Saudi Awwal Bank (formerly SABB), regarding your pending liability with the Bank. Despite multiple reminders and outreach attempts, bank have not received any response or effort from your end to settle the dues.
 
 This is your final opportunity to resolve the matter amicably. The Bank is extending a limited-time discount of up to ${Math.round(discount)}% on your outstanding liability as a gesture of goodwill. To benefit from this exceptional offer, full payment must be made on or before ${deadlineStr}.
 
@@ -1205,7 +1207,10 @@ Please note that failure to respond or take action will leave the Bank with no o
 
 For any clarification or to proceed with the settlement, please contact us immediately. Your cooperation at this stage is crucial to avoid further consequences.
 
-Thank you for your prompt attention.`;
+Thank you for your prompt attention.
+
+Best Regards,
+${processedBy || ''}`;
             } else {
                 // Default format - Professional settlement email
                 currentBody = `Dear ${contactPerson},
