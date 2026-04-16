@@ -1198,6 +1198,26 @@
             // Check if bank is SAB/SABB (Saudi Awwal Bank)
             const isSAB = /\b(sabb?|saudi\s*awwal)\b/i.test(bankName);
 
+            // Currency detection based on bank/country
+            const bankLower = bankName.toLowerCase();
+            let currency = 'AED'; // Default UAE
+            if (/\b(sabb?|saudi\s*awwal|snb|al\s*rajhi|riyad\s*bank|banque\s*saudi|bsf|saudi\s*fransi|alinma|saudi\s*investment|saib|arab\s*national|anb|saudi\s*british|samba|ncb|al\s*bilad|saudi\s*hollandi)\b/i.test(bankName)
+                || /\bsaudi\b/i.test(bankName) || /\bksa\b/i.test(bankName)) {
+                currency = 'SAR';
+            } else if (/\b(nbk|kuwait\s*finance|kfh|burgan|gulf\s*bank|ahli\s*united.*kuwait|warba|boubyan)\b/i.test(bankName)
+                || /\bkuwait\b/i.test(bankName)) {
+                currency = 'KWD';
+            } else if (/\b(nbo|bank\s*muscat|oman\s*arab|ahli\s*bank.*oman|sohar|dhofar|alizz|hsbc\s*oman)\b/i.test(bankName)
+                || /\boman\b/i.test(bankName)) {
+                currency = 'OMR';
+            } else if (/\b(qnb|qatar\s*national|doha\s*bank|cbq|commercial\s*bank.*qatar|qatar\s*islamic|masraf|ahli\s*bank.*qatar|dukhan)\b/i.test(bankName)
+                || /\bqatar\b/i.test(bankName)) {
+                currency = 'QAR';
+            } else if (/\b(nbb|bahrain\s*islamic|ahli\s*united.*bahrain|khaleeji|ithmaar|salam\s*bank|abc\s*bahrain)\b/i.test(bankName)
+                || /\bbahrain\b/i.test(bankName)) {
+                currency = 'BHD';
+            }
+
             if (isSAB) {
                 // SAB Subject - Urgent + Client Name + Iqama + Bank
                 currentSubject = `Urgent: Final Settlement Notice – ${clientName}${masterId ? ' – ' + masterId : ''} – Saudi Awwal Bank (SABB)`;
@@ -1218,9 +1238,9 @@ We are writing to you from Bilkish Associates, on behalf of Saudi Awwal Bank (fo
 
 Name              : ${clientName}${masterId ? '\nID No             : ' + masterId : ''}
 Product           : ${productShort}${accountNo ? '\n' + acctLabel.padEnd(18) + ': ' + acctValue : ''}
-Outstanding       : AED ${commaFmt(amount)}
+Outstanding       : SAR ${commaFmt(amount)}
 
-This is your final opportunity to resolve the matter amicably. The Bank is extending a limited-time discount of up to ${Math.round(discount)}% (AED ${commaFmt(discAmt)}) on your outstanding liability as a gesture of goodwill. To benefit from this exceptional offer, full payment must be made on or before ${deadlineStr}.
+This is your final opportunity to resolve the matter amicably. The Bank is extending a limited-time discount of up to ${Math.round(discount)}% (SAR ${commaFmt(discAmt)}) on your outstanding liability as a gesture of goodwill. To benefit from this exceptional offer, full payment must be made on or before ${deadlineStr}.
 
 Please note that failure to respond or take action will leave the Bank with no option but to proceed with necessary measures to protect its legitimate interests. We strongly advise you not to ignore this notice.
 
@@ -1232,7 +1252,7 @@ Best Regards,
 ${processedBy || ''}`;
 
                 // HTML with bold for display
-                currentBodyHTML = `Dear ${contactPerson},<br><br>We are writing to you from <b>Bilkish Associates</b>, on behalf of <b>Saudi Awwal Bank (formerly SABB)</b>, regarding your <b>pending liability</b> with the Bank. Despite multiple reminders and outreach attempts, bank have not received any response or effort from your end to settle the dues.<br><br><pre style="font-family:inherit;margin:0;white-space:pre-wrap">Name              : ${clientName}${masterId ? '\nID No             : ' + masterId : ''}\nProduct           : ${productShort}${accountNo ? '\n' + acctLabel.padEnd(18) + ': ' + acctValue : ''}\nOutstanding       : AED ${commaFmt(amount)}</pre><br><b>This is your final opportunity to resolve the matter amicably.</b> The Bank is extending a <b>limited-time discount of up to ${Math.round(discount)}% (AED ${commaFmt(discAmt)})</b> on your outstanding liability as a gesture of goodwill. To benefit from this exceptional offer, full payment must be made <b>on or before ${deadlineStr}</b>.<br><br>Please note that failure to respond or take action will leave the Bank with <b>no option but to proceed with necessary measures</b> to protect its legitimate interests. We strongly advise you not to ignore this notice.<br><br>For any clarification or to proceed with the settlement, please contact us immediately. Your cooperation at this stage is crucial to avoid further consequences.<br><br>Thank you for your prompt attention.<br><br>Best Regards,<br>${processedBy || ''}`;
+                currentBodyHTML = `Dear ${contactPerson},<br><br>We are writing to you from <b>Bilkish Associates</b>, on behalf of <b>Saudi Awwal Bank (formerly SABB)</b>, regarding your <b>pending liability</b> with the Bank. Despite multiple reminders and outreach attempts, bank have not received any response or effort from your end to settle the dues.<br><br><pre style="font-family:inherit;margin:0;white-space:pre-wrap">Name              : ${clientName}${masterId ? '\nID No             : ' + masterId : ''}\nProduct           : ${productShort}${accountNo ? '\n' + acctLabel.padEnd(18) + ': ' + acctValue : ''}\nOutstanding       : SAR ${commaFmt(amount)}</pre><br><b>This is your final opportunity to resolve the matter amicably.</b> The Bank is extending a <b>limited-time discount of up to ${Math.round(discount)}% (SAR ${commaFmt(discAmt)})</b> on your outstanding liability as a gesture of goodwill. To benefit from this exceptional offer, full payment must be made <b>on or before ${deadlineStr}</b>.<br><br>Please note that failure to respond or take action will leave the Bank with <b>no option but to proceed with necessary measures</b> to protect its legitimate interests. We strongly advise you not to ignore this notice.<br><br>For any clarification or to proceed with the settlement, please contact us immediately. Your cooperation at this stage is crucial to avoid further consequences.<br><br>Thank you for your prompt attention.<br><br>Best Regards,<br>${processedBy || ''}`;
             } else {
                 // Default Subject
                 currentSubject = `Settlement Offer – ${clientName} – ${bankName} ${productShort}${isCard ? ' ending ' + accountNo : ''}`;
@@ -1245,9 +1265,9 @@ Please be informed that as of ${n.date}, the following account remains outstandi
 
 Name              : ${clientName}${masterId ? '\nID No             : ' + masterId : ''}
 Product           : ${productShort}${accountNo ? '\n' + acctLabel.padEnd(18) + ': ' + acctValue : ''}
-Outstanding       : AED ${commaFmt(amount)}
+Outstanding       : ${currency} ${commaFmt(amount)}
 
-Subject to bank approval, should you wish to close the above account through a full and final one-time payment, the settlement amount would be AED ${commaFmt(finalAmt)}.
+Subject to bank approval, should you wish to close the above account through a full and final one-time payment, the settlement amount would be ${currency} ${commaFmt(finalAmt)}.
 
 This is a one-time offer and is not applicable for partial payments. Upon receipt of the settlement amount, a clearance letter / NOC will be issued by ${bankName}.
 
@@ -1259,9 +1279,9 @@ ${processedBy || ''}`;
 
             // Display
             document.getElementById('sumProduct').textContent = productShort;
-            document.getElementById('sumOutstanding').textContent = `AED ${commaFmt(amount)}`;
-            document.getElementById('sumDiscount').textContent = `- AED ${commaFmt(discAmt)}`;
-            document.getElementById('sumSettlement').textContent = `AED ${commaFmt(finalAmt)}`;
+            document.getElementById('sumOutstanding').textContent = `${currency} ${commaFmt(amount)}`;
+            document.getElementById('sumDiscount').textContent = `- ${currency} ${commaFmt(discAmt)}`;
+            document.getElementById('sumSettlement').textContent = `${currency} ${commaFmt(finalAmt)}`;
             document.getElementById('emailSubject').textContent = currentSubject;
             if (currentBodyHTML) {
                 document.getElementById('emailBody').innerHTML = currentBodyHTML;
